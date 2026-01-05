@@ -1,0 +1,227 @@
+// /lib/countries.js
+export const COUNTRIES = [
+  { code: "AF", name: "Afghanistan" },
+  { code: "AL", name: "Albania" },
+  { code: "DZ", name: "Algeria" },
+  { code: "AD", name: "Andorra" },
+  { code: "AO", name: "Angola" },
+  { code: "AR", name: "Argentina" },
+  { code: "AM", name: "Armenia" },
+  { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" },
+  { code: "AZ", name: "Azerbaijan" },
+  { code: "BH", name: "Bahrain" },
+  { code: "BD", name: "Bangladesh" },
+  { code: "BY", name: "Belarus" },
+  { code: "BE", name: "Belgium" },
+  { code: "BZ", name: "Belize" },
+  { code: "BJ", name: "Benin" },
+  { code: "BT", name: "Bhutan" },
+  { code: "BO", name: "Bolivia" },
+  { code: "BA", name: "Bosnia and Herzegovina" },
+  { code: "BW", name: "Botswana" },
+  { code: "BR", name: "Brazil" },
+  { code: "BN", name: "Brunei Darussalam" },
+  { code: "BG", name: "Bulgaria" },
+  { code: "BF", name: "Burkina Faso" },
+  { code: "BI", name: "Burundi" },
+  { code: "KH", name: "Cambodia" },
+  { code: "CM", name: "Cameroon" },
+  { code: "CA", name: "Canada" },
+  { code: "CV", name: "Cape Verde" },
+  { code: "CF", name: "Central African Republic" },
+  { code: "TD", name: "Chad" },
+  { code: "CL", name: "Chile" },
+  { code: "CN", name: "China" },
+  { code: "CO", name: "Colombia" },
+  { code: "CG", name: "Congo" },
+  { code: "CD", name: "Congo, Democratic Republic" },
+  { code: "CR", name: "Costa Rica" },
+  { code: "HR", name: "Croatia" },
+  { code: "CU", name: "Cuba" },
+  { code: "CY", name: "Cyprus" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "DK", name: "Denmark" },
+  { code: "DJ", name: "Djibouti" },
+  { code: "DO", name: "Dominican Republic" },
+  { code: "EC", name: "Ecuador" },
+  { code: "EG", name: "Egypt" },
+  { code: "SV", name: "El Salvador" },
+  { code: "EE", name: "Estonia" },
+  { code: "ET", name: "Ethiopia" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "GA", name: "Gabon" },
+  { code: "GM", name: "Gambia" },
+  { code: "GE", name: "Georgia" },
+  { code: "DE", name: "Germany" },
+  { code: "GH", name: "Ghana" },
+  { code: "GR", name: "Greece" },
+  { code: "GT", name: "Guatemala" },
+  { code: "GN", name: "Guinea" },
+  { code: "GY", name: "Guyana" },
+  { code: "HT", name: "Haiti" },
+  { code: "HN", name: "Honduras" },
+  { code: "HK", name: "Hong Kong" },
+  { code: "HU", name: "Hungary" },
+  { code: "IS", name: "Iceland" },
+  { code: "IN", name: "India" },
+  { code: "ID", name: "Indonesia" },
+  { code: "IR", name: "Iran" },
+  { code: "IQ", name: "Iraq" },
+  { code: "IE", name: "Ireland" },
+  { code: "IL", name: "Israel" },
+  { code: "IT", name: "Italy" },
+  { code: "JM", name: "Jamaica" },
+  { code: "JP", name: "Japan" },
+  { code: "JO", name: "Jordan" },
+  { code: "KZ", name: "Kazakhstan" },
+  { code: "KE", name: "Kenya" },
+  { code: "KW", name: "Kuwait" },
+  { code: "KG", name: "Kyrgyzstan" },
+  { code: "LA", name: "Laos" },
+  { code: "LV", name: "Latvia" },
+  { code: "LB", name: "Lebanon" },
+  { code: "LS", name: "Lesotho" },
+  { code: "LR", name: "Liberia" },
+  { code: "LY", name: "Libya" },
+  { code: "LI", name: "Liechtenstein" },
+  { code: "LT", name: "Lithuania" },
+  { code: "LU", name: "Luxembourg" },
+  { code: "MO", name: "Macao" },
+  { code: "MG", name: "Madagascar" },
+  { code: "MW", name: "Malawi" },
+  { code: "MY", name: "Malaysia" },
+  { code: "MV", name: "Maldives" },
+  { code: "ML", name: "Mali" },
+  { code: "MT", name: "Malta" },
+  { code: "MX", name: "Mexico" },
+  { code: "MD", name: "Moldova" },
+  { code: "MC", name: "Monaco" },
+  { code: "MN", name: "Mongolia" },
+  { code: "MA", name: "Morocco" },
+  { code: "MZ", name: "Mozambique" },
+  { code: "MM", name: "Myanmar" },
+  { code: "NA", name: "Namibia" },
+  { code: "NP", name: "Nepal" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "NG", name: "Nigeria" },
+  { code: "NO", name: "Norway" },
+  { code: "OM", name: "Oman" },
+  { code: "PK", name: "Pakistan" },
+  { code: "PA", name: "Panama" },
+  { code: "PY", name: "Paraguay" },
+  { code: "PE", name: "Peru" },
+  { code: "PH", name: "Philippines" },
+  { code: "PL", name: "Poland" },
+  { code: "PT", name: "Portugal" },
+  { code: "QA", name: "Qatar" },
+  { code: "RO", name: "Romania" },
+  { code: "RU", name: "Russia" },
+  { code: "RW", name: "Rwanda" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "SN", name: "Senegal" },
+  { code: "RS", name: "Serbia" },
+  { code: "SG", name: "Singapore" },
+  { code: "SK", name: "Slovakia" },
+  { code: "SI", name: "Slovenia" },
+  { code: "ZA", name: "South Africa" },
+  { code: "KR", name: "South Korea" },
+  { code: "ES", name: "Spain" },
+  { code: "LK", name: "Sri Lanka" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "TW", name: "Taiwan" },
+  { code: "TH", name: "Thailand" },
+  { code: "TR", name: "Turkey" },
+  { code: "UA", name: "Ukraine" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+  { code: "UY", name: "Uruguay" },
+  { code: "UZ", name: "Uzbekistan" },
+  { code: "VE", name: "Venezuela" },
+  { code: "VN", name: "Vietnam" },
+  { code: "YE", name: "Yemen" },
+  { code: "ZM", name: "Zambia" },
+  { code: "ZW", name: "Zimbabwe" },
+];
+
+export const ROUTES = {
+  HOME: "/",
+  SIGNUP: "/signup",
+  SIGNIN: "/login",
+  MANAGE: "/manage",
+  SPOT: "/spot",
+  HEDGE: "/overview",
+  HEDGE_DETAILS: "/hedgeDetails",
+  OTP_VERIFICATION: "/otpVerification",
+  AFFILIATION: "/affiliation",
+  RECORD: "/record",
+  USER_KYC_DETAILS: "/user-kyc-details",
+};
+
+export const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/signup",
+  "/privacy-policy",
+  "/terms-conditions",
+  "/contact-us",
+  "/arBITORIOration-rules",
+  "/otpVerification"
+]
+
+export const PROTECTED_USER_ROUTES = [
+  "/hedge",
+  "/hedgeDetails",
+  "/spot",
+  "/contracts",
+  "/affiliation",
+]
+
+export const ADMIN_ONLY_ROUTES = ["/manage", "/user-kyc-details"]
+
+export const ALL_PROTECTED_ROUTES = [...PROTECTED_USER_ROUTES, ...ADMIN_ONLY_ROUTES]
+
+export const STORAGES = {
+  IS_RECONNECTED: "isReconnected",
+  SIGN_TOKEN: "signToken",
+  TOKEN: "token",
+  CHART_LAST_USED_TIME_BASED_RESOLUTION: "chart.lastUsedTimeBasedResolution",
+  CHART_LAST_USED_TIMEFRAME: "chart.lastUsedTimeFrame",
+  CHART_INDICATORS: "chart.indicators",
+  REMEMBERED_EMAIL: "rememberedEmail",
+  GRAPH_SHOW: "graphShow",
+  HEDGE_AMOUNT: "hedgeAmount",
+  BITORIOORIO_COIN_STACKED: "BITORIOorioCoinsStacked",
+  EMAIL: "email",
+  REFERRAL: "referral",
+  TERMS: "terms",
+  REFERRAL_CODE: 'referralCode', 
+};
+
+export const PASSPORT_PENDING = "passport_pending";
+export const PASSPORT_UPLOADED = "passport_uploaded";
+export const SELFIE_PENDING = "selfie_pending";
+export const SELFIE_VERIFIED = "selfie_verified";
+export const SELFIE_UPLOADED = "selfie_uploaded";
+export const AADHAAR_PENDING = "aadhaar_pending";
+export const AADHAAR_OTP_SENT = "aadhaar_otp_sent";
+export const AADHAAR_VERIFIED = "aadhaar_verified";
+export const PAN_PENDING = "pan_pending";
+export const PAN_FAILED = "pan_failed";
+export const PAN_VERIFIED = "pan_verified";
+export const VIDEO_PENDING = "video_pending";
+export const VIDEO_REJECTED = "video_rejected";
+export const COMPLETED = "completed";
+export const VIDEO_UPLOADED = "video_uploaded";
+export const REJECTED = "rejected";
+
+
+export const KYC_INITIATED = "initiated"
+export const KYC_COMPLETED = "completed"
+export const KYC_VERIFIED = "verified"
+export const KYC_REJECTED = "rejected"
+

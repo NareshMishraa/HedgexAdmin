@@ -1,0 +1,71 @@
+export const STORAGES = {
+  IS_RECONNECTED: "isReconnected",
+  SIGN_TOKEN: "signToken",
+  TOKEN: "token",
+  CHART_LAST_USED_TIME_BASED_RESOLUTION: "chart.lastUsedTimeBasedResolution",
+  CHART_LAST_USED_TIMEFRAME: "chart.lastUsedTimeFrame",
+  CHART_INDICATORS: "chart.indicators",
+  REMEMBERED_EMAIL: "rememberedEmail",
+  GRAPH_SHOW: "graphShow",
+  HEDGE_AMOUNT: "hedgeAmount",
+  BITORIOORIO_COIN_STACKED: "BITORIOorioCoinsStacked",
+  EMAIL: "email",
+  REFERRAL: "referral",
+  TERMS: "terms",
+  REFERRAL_CODE: 'referralCode', 
+};
+// supported wallets
+export const SUPPORTED_WALLETS = [
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    icon: '🦊',
+    description: 'Most popular Ethereum wallet',
+    installed: false,
+    downloadLink: 'https://metamask.io/download.html',
+    shareLink: 'https://metamask.io/',
+  },
+  {
+    id: 'walletConnect',
+    name: 'WalletConnect',
+    icon: '🔗',
+    description: 'Connect with mobile wallets',
+    installed: true,
+    downloadLink: 'https://walletconnect.com/downloads',
+    shareLink: 'https://walletconnect.com/',
+  },
+  {
+    id: 'coinbase',
+    name: 'Coinbase Wallet',
+    icon: '🟦',
+    description: 'Coinbase official wallet',
+    installed: false,
+    downloadLink: 'https://www.coinbase.com/wallet/downloads',
+    shareLink: 'https://www.coinbase.com/wallet',
+  },
+  {
+    id: 'trust',
+    name: 'Trust Wallet',
+    icon: '🛡️',
+    description: 'Secure multi-chain wallet',
+    installed: false,
+    downloadLink: 'https://trustwallet.com/download',
+    shareLink: 'https://trustwallet.com/',
+  },
+  // {
+  //   id: 'rainbow',
+  //   name: 'Rainbow',
+  //   icon: '🌈',
+  //   description: 'Colorful Ethereum wallet',
+  //   installed: false
+  // },
+  {
+    id: 'phantom',
+    name: 'Phantom',
+    icon: '👻',
+    description: 'Solana wallet support',
+    installed: false,
+    downloadLink: 'https://phantom.app/download',
+    shareLink: 'https://phantom.app/',
+  }
+];
