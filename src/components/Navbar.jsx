@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LineChart, Shuffle, LogOut, Menu, X } from "lucide-react";
+import { LineChart, Shuffle, LogOut, Menu, X, Ticket } from "lucide-react";
 import WalletConnect from "./WalletConnect";
 import { useNavigate } from "react-router-dom";
 
@@ -61,34 +61,37 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         <div className="hidden sm:flex items-center gap-4">
           {isLoggedIn && (
             <>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setActiveTab("pool")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-              activeTab === "pool"
-                ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
-                : "hover:bg-slate-800 text-slate-300"
-            }`}
-          >
-            <LineChart size={18} />
-            <span>Pool Hedging</span>
-          </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                  setActiveTab("pool");
+                  navigate("/hedgingRebalance");
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${activeTab === "pool"
+                    ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
+                    : "hover:bg-slate-800 text-slate-300"
+                  }`}
+              >
+                <LineChart size={18} />
+                <span>Pool Hedging</span>
+              </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setActiveTab("rebalance")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-              activeTab === "rebalance"
-                ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
-                : "hover:bg-slate-800 text-slate-300"
-            }`}
-          >
-            <Shuffle size={18} />
-            <span>Rebalance Details</span>
-          </motion.button>
-          </>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {setActiveTab("rebalance"),
+                  navigate("/hedgingRebalance")
+                }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${activeTab === "rebalance"
+                    ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
+                    : "hover:bg-slate-800 text-slate-300"
+                  }`}
+              >
+                <Shuffle size={18} />
+                <span>Rebalance Details</span>
+              </motion.button>
+            </>
           )}
         </div>
 
@@ -96,6 +99,23 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         <div className="hidden sm:flex items-center gap-3">
           {isLoggedIn && (
             <>
+              {/* Tickets */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                 onClick={() => {
+                  setActiveTab("");
+                  navigate("/tickets");
+                }
+              }
+                className="flex items-center gap-2 px-4 py-2 rounded-lg
+                           bg-emerald-600/20 border border-emerald-600
+                           text-emerald-400 hover:bg-emerald-600/30"
+              >
+                <Ticket size={16} />
+                Tickets
+              </motion.button>
+
               <WalletConnect
                 isConnected={isWalletConnected}
                 connectedWallet={connectedWallet}
@@ -136,7 +156,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             transition={{ duration: 0.2 }}
             className="sm:hidden bg-black border-t border-slate-800 px-4 pb-4 space-y-3"
           >
-            
+
 
             {/* Tabs */}
             <div className="flex flex-col gap-2">
@@ -145,11 +165,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                   setActiveTab("pool");
                   setMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
-                  activeTab === "pool"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "pool"
                     ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
                     : "hover:bg-slate-800 text-slate-300"
-                }`}
+                  }`}
               >
                 <LineChart size={18} />
                 <span>Pool Hedging</span>
@@ -160,11 +179,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                   setActiveTab("rebalance");
                   setMenuOpen(false);
                 }}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
-                  activeTab === "rebalance"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${activeTab === "rebalance"
                     ? "bg-emerald-600/20 border border-emerald-600 text-emerald-400"
                     : "hover:bg-slate-800 text-slate-300"
-                }`}
+                  }`}
               >
                 <Shuffle size={18} />
                 <span>Rebalance Details</span>

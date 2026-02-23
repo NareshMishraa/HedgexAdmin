@@ -4,6 +4,7 @@ import { rtkBaseQuery } from "./baseQuery";
 const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: rtkBaseQuery,
+  tagTypes: ["Tickets"],
   endpoints: (builder) => ({
     // User authentication endpoints
     userLogin: builder.mutation({
@@ -202,6 +203,69 @@ resetPassword: builder.mutation({
         body: { email, flag },
       }),
     }),
+    createLimitOrder: builder.mutation({
+      query: (body) => ({
+        url: "admin/limit-order",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["AdminLimitOrders"],
+    }),
+    getAdminLimitOrders: builder.query({
+      query: () => ({
+        url: "admin/limit/orders",
+        method: "GET",
+      }),
+      providesTags: ["AdminLimitOrders"],
+    }),
+    getAllTicketsForAdmin: builder.query({
+    query: ({ page = 1, limit = 10 }) => ({
+    url: `http://localhost:8081/api/v1/auth/admin/all-tickets?page=${page}&limit=${limit}`,
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "x-admin-key": import.meta.env.VITE_ADMIN_TICKET_KEY, // optional secure key
+    },
+  }),
+   providesTags: ["Tickets"], 
+}),
+ getTicketMessagesForAdmin: builder.query({
+      query: (ticket_id) => ({
+        url: `http://localhost:8081/api/v1/auth/admin/ticket-all-messages`,
+        method: "POST",
+        body: { ticket_id },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "x-admin-key": import.meta.env.VITE_ADMIN_TICKET_KEY,
+          "Content-Type": "application/json",
+        },
+      }),
+    }),
+    replyTicketMessageAdmin: builder.mutation({
+  query: ({ ticket_id, message }) => ({
+    url: `http://localhost:8081/api/v1/auth/admin/reply/ticket-message`,
+    method: "POST",
+    body: { ticket_id, message, role: "admin" },
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "x-admin-key": import.meta.env.VITE_ADMIN_TICKET_KEY,
+      "Content-Type": "application/json",
+    },
+  }),
+}),
+updateTicketStatusByAdmin: builder.mutation({
+  query: ({ ticket_id, status }) => ({
+    url: `http://localhost:8081/api/v1/auth/admin/update/ticket-status`,
+    method: "POST",
+    body: { ticket_id, status },
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "x-admin-key": import.meta.env.VITE_ADMIN_TICKET_KEY,
+      "Content-Type": "application/json",
+    },
+  }),
+  invalidatesTags: ["Tickets"],
+}),
 
   }),
 });
@@ -234,6 +298,12 @@ export const {
   useUpdateWalletStatusMutation,
   useGetWalletStatusQuery,
   useSendForgotLoginPasswordMutation,
+  useCreateLimitOrderMutation,
+  useGetAdminLimitOrdersQuery,
+  useGetAllTicketsForAdminQuery,
+   useGetTicketMessagesForAdminQuery,
+   useReplyTicketMessageAdminMutation,
+  useUpdateTicketStatusByAdminMutation,
 } = authApi;
 
 export default authApi;

@@ -18,11 +18,15 @@ import {
 } from "wagmi";
 import { zeroAddress, parseUnits, formatUnits } from "viem";
 // import { useGetAllTokenPriceQuery, usePutAllRecentActivityMutation } from "@/services/auth";
+import { useCreateLimitOrderMutation } from "../../api/authApi.js";
 
-function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }) {
+function TradingInterface({ onPairChange = () => { },
+  onSwapComplete = () => { },
+  onModeChange = () => { }, // 🆕 add this
+}) {
 
-  const PRICE_QUOTER_ADDRESS=import.meta.env.VITE_PRICE_QUOTER_ADDRESS;
-  const ROUTER_CONTRACT_ADDRESS=import.meta.env.VITE_ROUTER_CONTRACT_ADDRESS;
+  const PRICE_QUOTER_ADDRESS = import.meta.env.VITE_PRICE_QUOTER_ADDRESS;
+  const ROUTER_CONTRACT_ADDRESS = import.meta.env.VITE_ROUTER_CONTRACT_ADDRESS;
 
   const SLIPPAGE_OPTIONS = [0.1, 0.5, 1, 3];
   const ETH_META = { key: "ETH", address: zeroAddress, decimals: 18, priceKey: "Ethereum" };
@@ -69,6 +73,36 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
   const { writeContractAsync } = useWriteContract();
   const { connectAsync, connectors } = useConnect();
 
+  // limit order
+  const [limitSide, setLimitSide] = useState("BUY");
+  const [limitPrice, setLimitPrice] = useState("");
+  const [limitQty, setLimitQty] = useState("");
+  const [symbol, setSymbol] = useState("");
+
+  const [createLimitOrder, { isLoading: isCreatingLimit }] = useCreateLimitOrderMutation();
+
+
+  const handleLimitOrderSubmit = async () => {
+    if (!fromKey || !toKey) return toast.error("Select tokens");
+    if (!limitPrice || !limitQty) return toast.error("Enter price and quantity");
+
+    try {
+      const res = await createLimitOrder({
+        symbol,
+        side: limitSide,
+        price: limitPrice,
+        quantity: limitQty,
+      }).unwrap();
+
+      toast.success(res.message || "Limit order created successfully!");
+      setLimitPrice("");
+      setLimitQty("");
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to create limit order");
+    }
+  };
+
+
   // const { data: priceResp } = useGetAllTokenPriceQuery();
   const parsePrice = (s) => (s ? Number(String(s).replace(/[$,]/g, "")) || 0 : 0);
 
@@ -85,10 +119,10 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
 
   // const { data: nativeBalance } = useBalance({ address, query: { enabled: !!address } });
   const { data: nativeBalance, refetch: refetchNativeBalance } = useBalance({
-  address,
-  query: { enabled: !!address },
-  watch: true, // auto-refetch on new blocks
- });
+    address,
+    query: { enabled: !!address },
+    watch: true, // auto-refetch on new blocks
+  });
 
   const erc20BalanceContracts = useMemo(() => {
     if (!address) return [];
@@ -236,7 +270,7 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
       await connectAsync({ connector });
       toast.info("Please Connect Wallet First");
       return true;
-    } catch(e) {
+    } catch (e) {
       toast.info("Please Connect Wallet First");
       return false;
     }
@@ -248,10 +282,10 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
     if (!Number.isFinite(num) || num < 0) { setInAmount(""); return; }
     setInAmount(num > bal ? String(bal) : val);
   };
-//   const handleFromAmountChange = (val) => {
-//   if (!/^\d*\.?\d*$/.test(val)) return; // allow only numbers & decimal
-//   setInAmount(val);
-// };
+  //   const handleFromAmountChange = (val) => {
+  //   if (!/^\d*\.?\d*$/.test(val)) return; // allow only numbers & decimal
+  //   setInAmount(val);
+  // };
 
   const handleMax = async () => {
     if (!isConnected) { await ensureConnected(); return; }
@@ -338,27 +372,27 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
         toast.success("Swap confirmed on-chain!");
 
         // notify parent to refresh recent trades immediately
-          try { await onSwapComplete(); } catch (_) {}
+        try { await onSwapComplete(); } catch (_) { }
 
         // log SUCCESS to recent-activity API
-        
-         // refresh balances after confirmation
+
+        // refresh balances after confirmation
         try {
           await Promise.allSettled([
             refetchNativeBalance?.(),
             refetchErc20Balances?.(),
           ]);
-      } catch (_) {}
-      //    try {
-      //      await putRecentActivity({
-      //        walletAddress: address,
-      //        message: `Executed : ${fromKey} → ${toKey} swap`,
-      //        status: "success",         // "success" | "failed"
-      //        amount: humanAmount,       // Number (schema expects Number)
-      //        type: "trade",             // "trade" for swaps
-      //      }).unwrap();
-      //    } catch (e) {
-      //  }
+        } catch (_) { }
+        //    try {
+        //      await putRecentActivity({
+        //        walletAddress: address,
+        //        message: `Executed : ${fromKey} → ${toKey} swap`,
+        //        status: "success",         // "success" | "failed"
+        //        amount: humanAmount,       // Number (schema expects Number)
+        //        type: "trade",             // "trade" for swaps
+        //      }).unwrap();
+        //    } catch (e) {
+        //  }
         setInAmount("");
         setOutAmount("");
         setMinReceived("0");
@@ -366,17 +400,17 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
         toast.error("Swap reverted");
         // log FAILED (reverted) to recent-activity API
         try {
-        // await putRecentActivity({
-        //   walletAddress: address,
-        //   message: `Swap reverted: ${fromKey} → ${toKey}`,
-        //   status: "failed",
-        //   amount: humanAmount,
-        //   type: "trade",
-        // }).unwrap();
-      } catch (e) {
+          // await putRecentActivity({
+          //   walletAddress: address,
+          //   message: `Swap reverted: ${fromKey} → ${toKey}`,
+          //   status: "failed",
+          //   amount: humanAmount,
+          //   type: "trade",
+          // }).unwrap();
+        } catch (e) {
+        }
       }
-      }
-    } catch(e) {
+    } catch (e) {
       // best-effort log FAILED to API even if we errored before receipt
       try {
         const fallbackAmount =
@@ -390,7 +424,7 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
         //   amount: fallbackAmount,
         //   type: "trade",
         // }).unwrap();
-      } catch (_) {}
+      } catch (_) { }
       toast.error("Swap failed");
     } finally {
       setIsSwapping(false);
@@ -400,28 +434,45 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
   // ------- button -------
   const btn = useMemo(() => {
     if (mode === "limit")
-      return { onClick: () => {}, disabled: true, text: "Limit orders coming soon", icon: Target,
-        className: "bg-gray-600/20 text-gray-400 border border-gray-500/20 cursor-not-allowed" };
+      return {
+        onClick: handleLimitOrderSubmit, disabled: false, text: isCreatingLimit ? "Creating Order..." : `Place ${limitSide} Limit Order`, icon: Target,
+        className: `${limitSide === "BUY"
+          ? "bg-emerald-600/30 hover:bg-emerald-600/40 border border-emerald-500/20"
+          : "bg-red-600/30 hover:bg-red-600/40 border border-red-500/20"
+          } text-white cursor-pointer`,
+      };
     if (!isConnected)
-      return { onClick: ensureConnected, disabled: false, text: "Connect Wallet", icon: Sparkles,
-        className: "bg-orange-600/20 text-orange-400 border border-orange-500/30 hover:bg-orange-600/30" };
+      return {
+        onClick: ensureConnected, disabled: false, text: "Connect Wallet", icon: Sparkles,
+        className: "bg-orange-600/20 text-orange-400 border border-orange-500/30 hover:bg-orange-600/30"
+      };
     if (isSwapping)
-      return { onClick: () => {}, disabled: true, text: "Processing Swap...", icon: RefreshCw,
-        className: "bg-blue-500/20 text-blue-400 border border-blue-500/30" };
+      return {
+        onClick: () => { }, disabled: true, text: "Processing Swap...", icon: RefreshCw,
+        className: "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+      };
     if (!inAmount || Number(inAmount) <= 0)
-      return { onClick: () => {}, disabled: true, text: "Enter amount", icon: AlertTriangle,
-        className: "bg-gray-600/20 text-gray-500 border border-gray-500/20" };
+      return {
+        onClick: () => { }, disabled: true, text: "Enter amount", icon: AlertTriangle,
+        className: "bg-gray-600/20 text-gray-500 border border-gray-500/20"
+      };
     if ((balancesByKey[fromKey] ?? 0) < Number(inAmount))
-      return { onClick: () => {}, disabled: true, text: "Insufficient balance", icon: AlertTriangle,
-        className: "bg-gray-600/20 text-gray-500 border border-gray-500/20" };
-    return { onClick: executeSwap, disabled: false, text: "Swap Now", icon: ArrowRight,
-      className: "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border border-blue-500/30" };
-  }, [mode, isConnected, isSwapping, inAmount, fromKey, balancesByKey]);
+      return {
+        onClick: () => { }, disabled: true, text: "Insufficient balance", icon: AlertTriangle,
+        className: "bg-gray-600/20 text-gray-500 border border-gray-500/20"
+      };
+    return {
+      onClick: executeSwap, disabled: false, text: "Swap Now", icon: ArrowRight,
+      className: "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border border-blue-500/30"
+    };
+  }, [mode, isConnected, isSwapping, inAmount, fromKey, balancesByKey, isCreatingLimit, limitSide, limitPrice, limitQty, symbol]);
 
   // ------- UI -------
   const disabledPanel = mode === "limit";
   const fromUSD = usdValue(fromKey, inAmount || 0);
   const toUSD = usdValue(toKey, outAmount || 0);
+
+
 
   return (
     <div className="w-full max-w-full">
@@ -438,7 +489,10 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
             />
             <div className="grid grid-cols-2 relative z-10">
               <button
-                onClick={() => setMode("spot")}
+                onClick={() => {
+                  setMode("spot");
+                  onModeChange("spot"); 
+                }}
                 className={`py-3 rounded-xl font-medium ${mode === "spot" ? "text-white" : "text-gray-400 hover:text-white"}`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -446,7 +500,10 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
                 </div>
               </button>
               <button
-                onClick={() => setMode("limit")}
+                onClick={() => {
+                  setMode("limit");
+                 onModeChange("limit");
+                 }}
                 className={`py-3 rounded-xl font-medium ${mode === "limit" ? "text-white" : "text-gray-400 hover:text-white"}`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -457,212 +514,289 @@ function TradingInterface({ onPairChange = () => {}, onSwapComplete = () => {} }
           </div>
 
           {/* TRADE CONTENT (blurred in limit mode) */}
-          <div className={disabledPanel ? "pointer-events-none opacity-60 blur-[1px]" : ""}>
-            {/* FROM */}
-            <div className="relative group">
-              <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald/10 group-hover:border-blue-500/30 transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-400" /> From
-                  </label>
-                  <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-lg">
-                    Balance: {(balancesByKey[fromKey] ?? 0).toFixed(6)} {displayName(fromKey)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="relative w-full sm:w-30 min-w-[9.5rem]">
-                    <select
-                      value={fromKey}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === toKey) setToKey(fromKey);
-                        setFromKey(val);
-                        setOutAmount("");
-                        setInAmount("");
-                      }}
-                      className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white font-medium backdrop-blur-sm pr-8"
-                    >
-                      {SELECTABLE.map((k) => (
-                        <option key={k} value={k}>{displayName(k)}</option>
-                      ))}
-                    </select>
-                    <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gradient-to-br ${gradientFor(fromKey)} pointer-events-none`} />
+          {/* TRADE CONTENT (show only in SPOT mode) */}
+          {mode === "spot" && (
+            <div>
+              {/* FROM */}
+              <div className="relative group">
+                <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald/10 group-hover:border-blue-500/30 transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-blue-400" /> From
+                    </label>
+                    <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-lg">
+                      Balance: {(balancesByKey[fromKey] ?? 0).toFixed(6)} {displayName(fromKey)}
+                    </span>
                   </div>
 
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    value={inAmount}
-                    onChange={(e) => handleFromAmountChange(e.target.value)}
-                    placeholder="0.00"
-                    className="flex-1 w-full bg-transparent text-left sm:text-right text-2xl font-bold text-white placeholder-gray-500 outline-none"
-                  />
-                </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="relative w-full sm:w-30 min-w-[9.5rem]">
+                      <select
+                        value={fromKey}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === toKey) setToKey(fromKey);
+                          setFromKey(val);
+                          setOutAmount("");
+                          setInAmount("");
+                        }}
+                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white font-medium backdrop-blur-sm pr-8"
+                      >
+                        {SELECTABLE.map((k) => (
+                          <option key={k} value={k}>{displayName(k)}</option>
+                        ))}
+                      </select>
+                      <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gradient-to-br ${gradientFor(fromKey)} pointer-events-none`} />
+                    </div>
 
-                <div className="flex justify-between items-center mt-4">
-                  <span className="text-sm text-gray-400">{fromUSD}</span>
-                  <button
-                    onClick={handleMax}
-                    disabled={maxBusy}
-                    className="text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-500/20 hover:border-blue-500/40"
-                  >
-                    {fromKey === "ETH" ? "MAX (minus gas)" : "MAX"}
-                  </button>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={inAmount}
+                      onChange={(e) => handleFromAmountChange(e.target.value)}
+                      placeholder="0.00"
+                      className="flex-1 w-full bg-transparent text-left sm:text-right text-2xl font-bold text-white placeholder-gray-500 outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center mt-4">
+                    <span className="text-sm text-gray-400">{fromUSD}</span>
+                    <button
+                      onClick={handleMax}
+                      disabled={maxBusy}
+                      className="text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-500/20 hover:border-blue-500/40"
+                    >
+                      {fromKey === "ETH" ? "MAX (minus gas)" : "MAX"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* SWITCH */}
+              <div className="flex justify-center py-2">
+                <motion.button
+                  onClick={() => {
+                    const a = fromKey; const b = toKey;
+                    setFromKey(b); setToKey(a); setOutAmount("");
+                  }}
+                  className="relative p-4 glass-pro rounded-full hover:bg-white/10 transition-all group"
+                  whileHover={{ scale: 1.15, rotate: 180 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <ArrowUpDown className="h-6 w-6 text-gray-400 group-hover:text-white" />
+                </motion.button>
+              </div>
+
+              {/* TO */}
+              <div className="relative group">
+                <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald/10 group-hover:border-emerald-500/30 transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-emerald-400" /> To
+                    </label>
+                    <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-lg">
+                      Balance: {(balancesByKey[toKey] ?? 0).toFixed(6)} {displayName(toKey)}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="relative w-full sm:w-30 min-w-[9.5rem]">
+                      <select
+                        value={toKey}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === fromKey) setFromKey(toKey);
+                          setToKey(val);
+                          setOutAmount("");
+                          setInAmount("");
+                        }}
+                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white font-medium backdrop-blur-sm pr-8"
+                      >
+                        {SELECTABLE.map((k) => (
+                          <option key={k} value={k}>{displayName(k)}</option>
+                        ))}
+                      </select>
+                      <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gradient-to-br ${gradientFor(toKey)} pointer-events-none`} />
+                    </div>
+
+                    <input
+                      type="number"
+                      value={outAmount}
+                      readOnly
+                      placeholder={isQuoting ? "Quoting…" : "0.00"}
+                      className="flex-1 w-full bg-transparent text-left sm:text-right text-2xl font-bold text-white placeholder-gray-500 outline-none opacity-90"
+                    />
+                  </div>
+
+                  <div className="text-left sm:text-right mt-4">
+                    <span className="text-sm text-gray-400">{toUSD}</span>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* SWITCH */}
-            <div className="flex justify-center py-2">
-              <motion.button
-                onClick={() => { const a = fromKey; const b = toKey; setFromKey(b); setToKey(a); setOutAmount(""); }}
-                className="relative p-4 glass-pro rounded-full hover:bg-white/10 transition-all group"
-                whileHover={{ scale: 1.15, rotate: 180 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <ArrowUpDown className="h-6 w-6 text-gray-400 group-hover:text-white" />
-              </motion.button>
-            </div>
-
-            {/* TO (read-only exact-in) */}
-            <div className="relative group">
-              <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-emerald/10 group-hover:border-emerald-500/30 transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-emerald-400" /> To
-                  </label>
-                  <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded-lg">
-                    Balance: {(balancesByKey[toKey] ?? 0).toFixed(6)} {displayName(toKey)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="relative w-full sm:w-30 min-w-[9.5rem]">
-                    <select
-                      value={toKey}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === fromKey) setFromKey(toKey);
-                        setToKey(val); 
-                        setOutAmount("");
-                        setInAmount("");
-                      }}
-                      className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white font-medium backdrop-blur-sm pr-8"
-                    >
-                      {SELECTABLE.map((k) => (
-                        <option key={k} value={k}>{displayName(k)}</option>
-                      ))}
-                    </select>
-                    <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gradient-to-br ${gradientFor(toKey)} pointer-events-none`} />
-                  </div>
-
-                  <input
-                    type="number"
-                    value={outAmount}
-                    readOnly
-                    placeholder={mode === "spot" ? (isQuoting ? "Quoting…" : "0.00") : "Coming soon"}
-                    className="flex-1 w-full bg-transparent text-left sm:text-right text-2xl font-bold text-white placeholder-gray-500 outline-none opacity-90"
-                  />
-                </div>
-
-                <div className="text-left sm:text-right mt-4">
-                  <span className="text-sm text-gray-400">{toUSD}</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* ADVANCED */}
-          <div className="space-y-3 mt-4">
-            <button
-              onClick={() => setAdvanced(!advanced)}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-              disabled={mode === "limit"}
-            >
-              <Settings className="h-4 w-4" />
-              <span className="text-sm">Advanced Settings</span>
-            </button>
+          {mode === "spot" && (
+            <div className="space-y-3 mt-4">
+              <button
+                onClick={() => setAdvanced(!advanced)}
+                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                disabled={mode === "limit"}
+              >
+                <Settings className="h-4 w-4" />
+                <span className="text-sm">Advanced Settings</span>
+              </button>
 
-            <AnimatePresence>
-              {advanced && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0, y: -10 }}
-                  animate={{ opacity: 1, height: "auto", y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className={`glass-pro rounded-2xl p-6 backdrop-blur-xl space-y-4 ${mode === "limit" ? "pointer-events-none opacity-60 blur-[1px]" : ""}`}
-                >
-                  <div>
-                    <label className="block text-sm text-gray-300 mb-3 flex items-center gap-2">
-                      <RefreshCw className="h-4 w-4 text-purple-400" />
-                      Slippage Tolerance
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {SLIPPAGE_OPTIONS.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => setSlip(opt)}
-                          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                            slip === opt
+
+              <AnimatePresence>
+                {advanced && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: -10 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className={`glass-pro rounded-2xl p-6 backdrop-blur-xl space-y-4 ${mode === "limit" ? "pointer-events-none opacity-60 blur-[1px]" : ""}`}
+                  >
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-3 flex items-center gap-2">
+                        <RefreshCw className="h-4 w-4 text-purple-400" />
+                        Slippage Tolerance
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {SLIPPAGE_OPTIONS.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => setSlip(opt)}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${slip === opt
                               ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                               : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
-                          }`}
-                          disabled={mode === "limit"}
-                        >
-                          {opt}%
-                        </button>
-                      ))}
+                              }`}
+                            disabled={mode === "limit"}
+                          >
+                            {opt}%
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="text-xs text-gray-500 space-y-2 bg-black/20 p-4 rounded-xl border border-white/5">
-                    <div className="flex justify-between">
-                      <span>Minimum received:</span>
-                      <span className="text-emerald-400 font-medium">
-                        {mode === "limit" ? "—" : `${minReceived} ${displayName(toKey)}`}
-                      </span>
+                    <div className="text-xs text-gray-500 space-y-2 bg-black/20 p-4 rounded-xl border border-white/5">
+                      <div className="flex justify-between">
+                        <span>Minimum received:</span>
+                        <span className="text-emerald-400 font-medium">
+                          {mode === "limit" ? "—" : `${minReceived} ${displayName(toKey)}`}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Network fee:</span>
+                        <span className="text-blue-400 font-medium">
+                          {mode === "limit" ? "—" : `${gasEth.toFixed(6)} ETH (${fmtUSD(gasUsd)})`}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Route:</span>
+                        <span className="text-purple-400 font-medium">
+                          {mode === "limit" ? "Coming soon" : routeSymbols}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Network fee:</span>
-                      <span className="text-blue-400 font-medium">
-                        {mode === "limit" ? "—" : `${gasEth.toFixed(6)} ETH (${fmtUSD(gasUsd)})`}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Route:</span>
-                      <span className="text-purple-400 font-medium">
-                        {mode === "limit" ? "Coming soon" : routeSymbols}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* LIMIT OVERLAY — does NOT block clicks anymore */}
           <AnimatePresence>
             {mode === "limit" && (
               <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+                className="glass-pro rounded-2xl p-6 mt-4 space-y-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
               >
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-2xl" />
-                <div className="relative rounded-2xl border border-white/10 bg-black/70 px-6 py-5 text-white text-center pointer-events-none">
-                  <div className="flex items-center justify-center gap-3">
-                    <Target className="h-7 w-7 text-emerald-400" />
-                    <div className="text-xl font-semibold">
-                      Limit orders are <span className="text-emerald-400">coming soon</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-2">
-                    Charts & recent trades are disabled in this mode
-                  </div>
+                {/* SIDE SELECTOR */}
+                <div className="flex justify-between gap-6">
+                  <button
+                    onClick={() => setLimitSide("BUY")}
+                    className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${limitSide === "BUY"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                      }`}
+                  >
+                    BUY
+                  </button>
+
+                  <button
+                    onClick={() => setLimitSide("SELL")}
+                    className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${limitSide === "SELL"
+                      ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                      : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                      }`}
+                  >
+                    SELL
+                  </button>
                 </div>
+
+                {/* SYMBOL SELECTOR */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Select Trading Pair
+                  </label>
+                  <select
+                    value={symbol}
+                    onChange={(e) => setSymbol(e.target.value)}
+                    className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white font-medium backdrop-blur-sm pr-8 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option value="">-- Select Pair --</option>
+                    {[
+                      "WBTC/USDC",
+                      "ETH/USDC",
+                      "HEDGEX/USDC",
+                      "WBTC/HEDGEX",
+                      "ETH/HEDGEX",
+                    ].map((pair) => (
+                      <option key={pair} value={pair}>
+                        {pair}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* LIMIT PRICE */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Limit Price
+                  </label>
+                  <input
+                    type="number"
+                    value={limitPrice}
+                    onChange={(e) => setLimitPrice(e.target.value)}
+                    placeholder="Enter price"
+                    className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                {/* QUANTITY */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    value={limitQty}
+                    onChange={(e) => setLimitQty(e.target.value)}
+                    placeholder="Enter quantity"
+                    className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  />
+                </div>
+
+
               </motion.div>
             )}
           </AnimatePresence>
+
 
           {/* ACTION BUTTON */}
           <motion.button

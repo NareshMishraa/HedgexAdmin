@@ -7,6 +7,7 @@ import HedgingRebalance from "./pages/HedgingRebalance";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import { Navigate } from "react-router-dom";
+import Tickets from "./pages/tickets/Tickets";
 
 function App() {
    const [activeTab, setActiveTab] = useState("pool");
@@ -43,6 +44,14 @@ function App() {
                   activeTab={activeTab}
                   setActiveTab={setActiveTab}
                 />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/tickets"
+            element={
+              <ProtectedRoute>
+                <Tickets />
               </ProtectedRoute>
             }
           />

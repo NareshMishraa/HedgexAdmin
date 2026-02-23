@@ -46,6 +46,9 @@ export default function DEXTrade() {
   // Called by TradingInterface whenever the user changes tokens
   //const handlePairChange = ({ fromKey, toKey }) => setPair({ fromKey, toKey });
 
+  const [mode,setMode]=useState("spot");
+ 
+
   return (
     <div className="space-y-6">
       {/* Top row: Interface + Chart */}
@@ -56,6 +59,7 @@ export default function DEXTrade() {
           <TradingInterface
             onPairChange={handlePairChange}
             onSwapComplete={() => setRecentTick((t) => t + 1)}
+            onModeChange={setMode}
         />
         </div>
 
@@ -76,7 +80,11 @@ export default function DEXTrade() {
           transition={{ duration: 0.4 }}
         >
           {/* <RecentTrades fromToken={pair.fromKey} toToken={pair.toKey} /> */}
-         <RecentTrades fromToken={pair.fromKey} toToken={pair.toKey} refreshKey={recentTick} />
+         <RecentTrades 
+         fromToken={pair.fromKey} 
+         toToken={pair.toKey} 
+         refreshKey={recentTick}
+         mode={mode} />
         </motion.div>
       </div>
     </div>
